@@ -1,0 +1,84 @@
+# =============================================================================
+# Configuração do Sistema de Câmeras com IA
+# Credenciais do DVR ficam no .env (usuario, senha, ip, porta)
+# =============================================================================
+
+cameras:
+  # Padrão Dahua/Intelbras: channel=N
+  # subtype=0 → stream principal (gravação)
+  # subtype=1 → stream secundário (detecção, mais leve)
+  - id: cam_01
+    name: "Câmera 1"
+    channel: 1
+    enabled: true
+  - id: cam_02
+    name: "Câmera 2"
+    channel: 2
+    enabled: true
+  - id: cam_03
+    name: "Câmera 3"
+    channel: 3
+    enabled: true
+  - id: cam_04
+    name: "Câmera 4"
+    channel: 4
+    enabled: true
+
+# =============================================================================
+detection:
+  model: "auto"         # auto = detecta GPU e escolhe yolov8n (CPU) ou yolov8s (GPU)
+  confidence: 0.45      # limiar de confiança (0.0 – 1.0)
+  classes:              # objetos a detectar (classes COCO)
+    - person
+    - car
+    - motorcycle
+    - bicycle
+    - truck
+    - dog
+    - cat
+  motion_sensitivity: 0.02   # fração de pixels para detectar movimento (fallback sem YOLO)
+  min_detection_interval: 1  # segundos mínimos entre eventos da mesma câmera
+
+# =============================================================================
+recording:
+  output_dir: "./recordings"
+  pre_event_seconds: 5       # segundos gravados antes do evento
+  post_event_seconds: 10     # segundos gravados após o evento
+  max_clip_duration: 120     # duração máxima de um clipe em segundos
+  format: "mp4"
+  fps: 25
+  resolution: [1280, 720]
+
+# =============================================================================
+ai:
+  # Chave em .env como GEMINI_API_KEY
+  # Modelos disponíveis (todos gratuitos com limites generosos):
+  #   gemini-1.5-flash   → rápido, leve, recomendado
+  #   gemini-1.5-pro     → mais capaz, limite menor
+  #   gemini-2.0-flash   → mais recente
+  model: "gpt-4o-mini"
+  max_tokens: 1024
+  max_frames_per_query: 3    # máximo de frames enviados por consulta ao assistente
+
+# =============================================================================
+database:
+  path: "./camera_ai.db"
+
+# =============================================================================
+alerts:
+  telegram:
+    enabled: false
+    # bot_token e chat_id no .env como TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID
+  email:
+    enabled: false
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    sender: ""
+    recipients: []
+    # senha no .env como EMAIL_PASSWORD
+
+# =============================================================================
+dashboard:
+  host: "0.0.0.0"
+  port: 8000
+  stream_quality: 75         # qualidade JPEG do stream ao vivo (0–100)
